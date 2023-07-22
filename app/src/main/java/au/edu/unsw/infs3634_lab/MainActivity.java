@@ -3,6 +3,7 @@ package au.edu.unsw.infs3634_lab;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,12 +19,14 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import au.edu.unsw.infs3634_lab.adapters.CryptoAdapter;
 import au.edu.unsw.infs3634_lab.adapters.RecyclerViewClickListener;
 import au.edu.unsw.infs3634_lab.api.Crypto;
 import au.edu.unsw.infs3634_lab.api.Response;
 import au.edu.unsw.infs3634_lab.api.Service;
+import au.edu.unsw.infs3634_lab.db.CryptoDatabase;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private CryptoAdapter adapter;
+    private CryptoDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,21 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         // Create an adapter instance with an empty ArrayList of Coin objects
         adapter = new CryptoAdapter(new ArrayList<Crypto>(), this);
 
+        // Instantiate a CoinDatabase object
+        database = Room.databaseBuilder(getApplicationContext(), CryptoDatabase.class, "crypto-database").build();
+
+        // Create an asynchronous database call using Java Runnable to
+        // get the list of coins from the database
+        // Set the adapter using the result
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Crypto> coins = (ArrayList<Crypto>) database.cryptoDao().getCoins();
+                adapter.setData(coins);
+                adapter.sortList(CryptoAdapter.SORT_BY_VALUE);
+            }
+        });
+
         // Implement Retrofit to make API call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.coinlore.net") // Set the base URL
@@ -65,6 +84,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
             public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 Log.d(TAG, "API call successful!");
                 List<Crypto> coins = response.body().getData();
+
+                // Create an asynchronous database call using Java Runnable to:
+                // Delete all rows currently in the database
+                // Add all rows from API call result into the database
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        database.cryptoDao().deleteAll(database.cryptoDao().getCoins().toArray(new Crypto[0]));
+                        database.cryptoDao().insertAll(coins.toArray(new Crypto[0]));
+                    }
+                });
+
                 // Supply data to the adapter to be displayed
                 adapter.setData((List)coins);
                 adapter.sortList(CryptoAdapter.SORT_BY_VALUE);
