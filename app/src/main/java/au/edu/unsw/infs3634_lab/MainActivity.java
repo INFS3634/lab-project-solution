@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                ArrayList<Crypto> coins = (ArrayList<Crypto>) database.cryptoDao().getCoins();
+                ArrayList<Crypto> coins = (ArrayList<Crypto>) database.cryptoDao().getCryptos();
                 adapter.setData(coins);
                 adapter.sortList(CryptoAdapter.SORT_BY_VALUE);
             }
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
-                        database.cryptoDao().deleteAll(database.cryptoDao().getCoins().toArray(new Crypto[0]));
+                        database.cryptoDao().deleteAll(database.cryptoDao().getCryptos().toArray(new Crypto[0]));
                         database.cryptoDao().insertAll(coins.toArray(new Crypto[0]));
                     }
                 });

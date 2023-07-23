@@ -12,14 +12,14 @@ import au.edu.unsw.infs3634_lab.api.Crypto;
 @Dao
 public interface CryptoDao {
     @Query("SELECT * FROM crypto")
-    List<Crypto> getCoins();
+    List<Crypto> getCryptos();
 
-    @Query("SELECT * FROM crypto WHERE symbol == :coinSymbol")
-    Crypto getCoin(String coinSymbol);
+    @Query("SELECT * FROM crypto WHERE id == :cryptoId")
+    Crypto getCoin(String cryptoId);
 
     @Insert
-    void insertAll(Crypto... coins);
+    void insertAll(Crypto... cryptos);
 
     @Delete
-    void deleteAll(Crypto... coins);
+    void deleteAll(Crypto... cryptos);
 }
