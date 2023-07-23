@@ -1,5 +1,6 @@
 package au.edu.unsw.infs3634_lab.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -147,7 +150,11 @@ public class CryptoAdapter extends RecyclerView.Adapter<CryptoAdapter.MyViewHold
         holder.name.setText(crypto.getName());
         holder.value.setText(formatter.format(Double.valueOf(crypto.getPriceUsd())));
         holder.change.setText(crypto.getPercentChange1h() + " %");
-        // Set crypto symbol as a tag to the view holder
+        Glide.with(holder.itemView)
+                .load("https://www.coinlore.com/img/" + crypto.getNameid() + ".png")
+                .fitCenter()
+                .into(holder.image);
+        // Set crypto id as a tag to the view holder
         holder.itemView.setTag(crypto.getId());
     }
 

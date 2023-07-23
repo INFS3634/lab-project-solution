@@ -87,6 +87,10 @@ public class DetailActivity extends AppCompatActivity {
                                 // Set value for the crypto attributes
                                 NumberFormat formatter = NumberFormat.getCurrencyInstance();
                                 setTitle(coin.getName());
+                                Glide.with(DetailActivity.this)
+                                        .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
+                                        .fitCenter()
+                                        .into(mArt);
                                 mName.setText(coin.getName());
                                 mSymbol.setText(coin.getSymbol());
                                 mRank.setText(coin.getRank().toString());
