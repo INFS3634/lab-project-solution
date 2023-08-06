@@ -159,4 +159,13 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@+id/tvName"
         app:layout_constraintTop_toTopOf="@+id/textView8" />
+
+    <CheckBox
+        android:id="@+id/cbFavourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Favourite Crypto"
+        app:layout_constraintStart_toStartOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
 </androidx.constraintlayout.widget.ConstraintLayout>

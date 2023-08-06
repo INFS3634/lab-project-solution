@@ -1,5 +1,6 @@
 package au.edu.unsw.infs3634_lab;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -10,10 +11,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -43,6 +51,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mVolume;
     private ImageView mSearch, mArt;
     private CryptoDatabase database;
+    private CheckBox checkBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +92,7 @@ public class DetailActivity extends AppCompatActivity {
                                 mVolume = findViewById(R.id.tvVolume24);
                                 mSearch = findViewById(R.id.ivSearch);
                                 mArt = findViewById(R.id.ivImage);
+                                checkBox = findViewById(R.id.cbFavourite);
 
                                 // Set value for the crypto attributes
                                 NumberFormat formatter = NumberFormat.getCurrencyInstance();
@@ -105,6 +115,38 @@ public class DetailActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         searchCrypto(coin.getName());
+                                    }
+                                });
+
+                                // Get the database instance from Firebase database
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                // Get the reference for the database
+                                DatabaseReference reference = database.getReference(FirebaseAuth.getInstance().getUid());
+                                reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        String result = (String) snapshot.getValue();
+                                        if (result != null && result.equals(coin.getSymbol())) {
+                                            checkBox.setChecked(true);
+                                        } else {
+                                            checkBox.setChecked(false);
+                                        }
+                                    }
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
+                                // Implement checked change listener for the checkbox
+                                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                    @Override
+                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                        if (isChecked) {
+                                            reference.setValue(coin.getSymbol());
+                                        } else {
+                                            reference.setValue("");
+                                        }
                                     }
                                 });
                             }

@@ -1,5 +1,6 @@
 package au.edu.unsw.infs3634_lab;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,7 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -99,6 +107,30 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 // Supply data to the adapter to be displayed
                 adapter.setData((List)coins);
                 adapter.sortList(CryptoAdapter.SORT_BY_VALUE);
+
+                // Get the database instance from Firebase database
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                // Get the reference for the database
+                DatabaseReference reference = database.getReference(FirebaseAuth.getInstance().getUid());
+                reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String result = (String) snapshot.getValue();
+                        if (result != null) {
+                            for (Crypto crypto : coins) {
+                                if (crypto.getSymbol().equals(result)) {
+                                    Toast.makeText(MainActivity.this, crypto.getName() + ": $" + crypto.getPriceUsd(), Toast.LENGTH_LONG).show();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
