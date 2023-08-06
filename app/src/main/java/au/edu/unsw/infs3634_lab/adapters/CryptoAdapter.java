@@ -47,7 +47,7 @@ public class CryptoAdapter extends RecyclerView.Adapter<CryptoAdapter.MyViewHold
                 ArrayList<Crypto> filteredList = new ArrayList<>();
                 String charString = charSequence.toString();
                 if (charString.isEmpty()) {
-                    localDataSetFiltered = localDataSet;
+                    filteredList = (ArrayList<Crypto>) localDataSet;
                 } else {
                     for (Crypto crypto : localDataSet) {
                         if (crypto.getName().toLowerCase().contains(charString.toLowerCase())) {
